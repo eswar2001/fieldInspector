@@ -14,7 +14,7 @@ import CoreSyn (
     CoreBind,
     CoreExpr,
     Expr (..),
-    mkStringLit,
+    mkStringLit
  )
 import Data.Aeson
 import Data.Aeson.Encode.Pretty (encodePretty)
@@ -38,7 +38,7 @@ import Control.Monad.IO.Class (liftIO)
 import System.IO (writeFile)
 import GHC.Hs.Decls
 import GhcPlugins (
-    CommandLineOption,
+    CommandLineOption,Arg (..),
     HsParsedModule(..),
     Hsc,
     Name,SDoc,DataCon,DynFlags,ModSummary(..),TyCon,
@@ -65,7 +65,7 @@ import GhcPlugins (
     unpackFS,
     tyConName
  )
-import Id (isExportedId)
+import Id (isExportedId,idType)
 import Name (getSrcSpan)
 import Control.Monad (forM)
 import SrcLoc
@@ -74,7 +74,7 @@ import Streamly.Prelude hiding (concatMap, init, length, map, splitOn,foldl')
 import System.Directory (createDirectoryIfMissing, removeFile)
 import System.Directory.Internal.Prelude hiding (mapM, mapM_)
 import Unique (mkUnique)
-import Var (isLocalId)
+import Var (isLocalId,varType)
 import Prelude hiding (id, mapM, mapM_)
 import FieldInspector.Types
 import TcRnTypes
@@ -114,7 +114,7 @@ buildCfgPass opts guts = do
         removeIfExists (moduleLoc Prelude.<> ".fieldUsage.json")
         print ("start generating fieldUsage for module: " <> moduleN <> " at path: " <> moduleLoc, length binds)
         t1 <- getCurrentTime
-        l <- toList $ parallely $ mapM (liftIO . toLBind) (fromList binds)
+        l <- toList $ serially $ mapM (liftIO . toLBind) (fromList binds)
         print ("started writing to file fieldUsage for module: " <> moduleN <> " at path: " <> moduleLoc, length l)
         DBS.writeFile (moduleLoc Prelude.<> ".fieldUsage.json") $ toStrict $ encodePretty $ Map.fromList $ groupByFunction $ Prelude.concat l
         t2 <- getCurrentTime
@@ -206,21 +206,33 @@ toLBind (Rec binds) = do
                     (fromList binds)
     pure $ groupByFunction $ Prelude.concat r
 
+processFieldExtraction :: Text -> Var -> Var -> Text -> IO [(Text,[FieldUsage])]
+processFieldExtraction functionName _field _type b = do
+    if "FunTy" == show (toConstr $ varType _field)
+        then do
+            let fieldType = T.strip $ Prelude.last $ T.splitOn "->" $ pack $ showSDocUnsafe $ ppr $ varType _field
+            pure [(functionName,[
+                    FieldUsage
+                        (pack $ showSDocUnsafe $ ppr $ varType _type)
+                        (pack $ showSDocUnsafe $ ppr _field)
+                        fieldType
+                        (pack $ show $ toConstr _type)
+                        b
+                    ])]
+        else pure mempty
+
 toLexpr :: Text -> Expr Var -> IO [(Text,[FieldUsage])]
 toLexpr functionName (Var x) = pure mempty
 toLexpr functionName (Lit x) = pure mempty
 toLexpr functionName (Type _id) = pure mempty
-toLexpr functionName (App func@(App _ _) args@(Var isHasField)) =
-    if "$_sys$$dHasField" == pack (nameStableString $ idName isHasField)
-        then processHasField functionName func args
-        else do
-            f <- toLexpr functionName func
-            a <- toLexpr functionName args
-            pure $ f <> a
-toLexpr functionName (App func args) = do
-    f <- toLexpr functionName func
-    a <- toLexpr functionName args
-    pure $ f <> a
+toLexpr functionName x@(App func@(Var _field) args@(Var _type)) = do
+    processFieldExtraction functionName _field _type (pack $ showSDocUnsafe $ ppr x)
+toLexpr functionName x@(App func@(App _ _) args@(Var isHasField))
+  | "$_sys$$dHasField" == pack (nameStableString $ idName isHasField) =
+        processHasField functionName func args
+  | otherwise = do
+        processApp functionName x
+toLexpr functionName x@(App _ _)  = processApp functionName x
 toLexpr functionName (Lam func args) =
     toLexpr functionName args
 toLexpr functionName (Let func args) = do
@@ -234,6 +246,11 @@ toLexpr functionName (Case condition bind _type alts) = do
 toLexpr functionName (Tick _ expr) = toLexpr functionName expr
 toLexpr functionName (Cast expr _) = toLexpr functionName expr
 toLexpr functionName _ = pure mempty
+
+processApp functionName x@(App func args) = do
+    f <- toLexpr functionName func
+    a <- toLexpr functionName args
+    pure $ f <> a
 
 toLAlt :: Text -> (AltCon, [Var], CoreExpr) -> IO [(Text,[FieldUsage])]
 toLAlt functionName (DataAlt dataCon, val, e) =
