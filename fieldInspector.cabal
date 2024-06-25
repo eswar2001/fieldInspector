@@ -93,13 +93,21 @@ common common-options
         , universum
         , data-default
         , streamly
+        , large-records
+        , large-generics
+        , large-anon
+        , ghc-hasfield-plugin
+        , record-dot-preprocessor ==0.2.14
+        , ghc-tcplugin-api
+        , typelet
+        , record-hasfield
 
 library
     -- Import common warning flags.
     import:           common-options
 
     -- Modules exported by the library.
-    exposed-modules:  FieldInspector.Plugin,FieldInspector.Group,FieldInspector.Types
+    exposed-modules:  FieldInspector.PluginFields,FieldInspector.PluginTypes,FieldInspector.Group,FieldInspector.Types
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -143,7 +151,7 @@ executable fieldInspector
 test-suite fieldInspector-test
     -- Import common warning flags.
     import:           common-options
-    ghc-options: -fplugin=FieldInspector.Plugin -fplugin-opt FieldInspector.Plugin:./tmp/fieldInspector/
+    ghc-options: -fplugin=FieldInspector.PluginFields -fplugin-opt FieldInspector.PluginFields:./tmp/fieldInspector/ -fplugin=FieldInspector.PluginTypes -fplugin-opt FieldInspector.PluginTypes:./tmp/fieldInspector/
     -- Base language which the package is written in.
     default-language: Haskell2010
 
@@ -164,5 +172,13 @@ test-suite fieldInspector-test
 
     -- Test dependencies.
     build-depends:
-        base,
-        fieldInspector
+        base
+        ,   fieldInspector
+        , large-records
+        , large-generics
+        , large-anon
+        , ghc-hasfield-plugin
+        , record-dot-preprocessor ==0.2.14
+        , ghc-tcplugin-api
+        , typelet
+        , record-hasfield

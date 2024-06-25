@@ -18,6 +18,23 @@
         "type": "github"
       }
     },
+    "ghc-hasfield-plugin": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1658487566,
+        "narHash": "sha256-pZ6kFNfRtBWWqJ3zZSJhZQz7hcdgTdpkqUbzRCuRSl8=",
+        "owner": "juspay",
+        "repo": "ghc-hasfield-plugin",
+        "rev": "d82ac5a6c0ad643eebe2b9b32c91f6523d3f30dc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "juspay",
+        "repo": "ghc-hasfield-plugin",
+        "rev": "d82ac5a6c0ad643eebe2b9b32c91f6523d3f30dc",
+        "type": "github"
+      }
+    },
     "haskell-flake": {
       "locked": {
         "lastModified": 1718653460,
@@ -30,6 +47,23 @@
       "original": {
         "owner": "srid",
         "repo": "haskell-flake",
+        "type": "github"
+      }
+    },
+    "large-records": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1719293475,
+        "narHash": "sha256-+KWKLaZ5qnWNx8LjtgyJRsRqJee69voAUiduY3AQttU=",
+        "owner": "eswar2001",
+        "repo": "large-records",
+        "rev": "f4419e6b54fb1270ae0abce1994bf14a24bfe959",
+        "type": "github"
+      },
+      "original": {
+        "owner": "eswar2001",
+        "repo": "large-records",
+        "rev": "f4419e6b54fb1270ae0abce1994bf14a24bfe959",
         "type": "github"
       }
     },
@@ -61,11 +95,31 @@
         "url": "https://github.com/NixOS/nixpkgs/archive/eb9ceca17df2ea50a250b6b27f7bf6ab0186f198.tar.gz"
       }
     },
+    "record-dot-preprocessor": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1644582826,
+        "narHash": "sha256-BXprRyjI4ZTG+Orz858xmttiC8O0yuubaaKmeRAL/UY=",
+        "owner": "ndmitchell",
+        "repo": "record-dot-preprocessor",
+        "rev": "99452d27f35ea1ff677be9af570d834e8fab4caf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ndmitchell",
+        "repo": "record-dot-preprocessor",
+        "rev": "99452d27f35ea1ff677be9af570d834e8fab4caf",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
+        "ghc-hasfield-plugin": "ghc-hasfield-plugin",
         "haskell-flake": "haskell-flake",
+        "large-records": "large-records",
         "nixpkgs": "nixpkgs",
+        "record-dot-preprocessor": "record-dot-preprocessor",
         "systems": "systems"
       }
     },
