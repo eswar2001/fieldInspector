@@ -62,15 +62,47 @@ common common-options
         -O2
     default-language:    Haskell2010
     default-extensions:
-        DeriveGeneric
-        GeneralizedNewtypeDeriving
-        InstanceSigs
-        LambdaCase
-        OverloadedStrings
-        RecordWildCards
+        AllowAmbiguousTypes
+        RankNTypes
+        UnicodeSyntax
         ScopedTypeVariables
         StandaloneDeriving
-        TypeApplications
+        EmptyDataDecls
+        FlexibleContexts
+        FlexibleInstances
+        FunctionalDependencies
+        KindSignatures
+        TypeOperators
+        MultiParamTypeClasses
+        PartialTypeSignatures
+        DuplicateRecordFields
+        NamedFieldPuns
+        TupleSections
+        TypeFamilies
+        OverloadedLabels
+        OverloadedStrings
+        DeriveAnyClass
+        DeriveFunctor
+        DeriveGeneric
+        DataKinds
+        ConstraintKinds
+        UndecidableInstances
+        InstanceSigs
+        Strict
+        PatternSynonyms
+        BlockArguments
+        LambdaCase
+        EmptyDataDeriving
+        TypeOperators
+        ViewPatterns
+        EmptyCase
+        PolyKinds
+        GeneralizedNewtypeDeriving
+        DerivingStrategies 
+        DerivingVia
+        QuasiQuotes
+        TemplateHaskell
+        ExistentialQuantification 
     build-depends:
         bytestring
         , containers
